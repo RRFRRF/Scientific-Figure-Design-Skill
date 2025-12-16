@@ -104,7 +104,7 @@ Consider these options and justify your choice:
 Based on your analysis, generate the final AI drawing prompt.
 
 ### Output Format
-Structure your prompt in this order (optimized for AI image generators):
+Structure your prompt in this order (just an example, the actual content must be generated based on my needs.):
 
 ```
 === SCENE DESCRIPTION (2-3 sentences, most important) ===
