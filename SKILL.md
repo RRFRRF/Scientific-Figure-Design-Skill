@@ -1,18 +1,32 @@
 ---
 name: scientific-figure-prompt
-description: "Generate structured AI drawing prompts for scientific/academic figures. Interactive style selection with 7 presets. Default - AI/SE academic white-bg minimalist flowchart. Outputs publication-ready prompts for Midjourney/DALL-E/Gemini."
+description: Use when generating AI drawing prompts for scientific figures, academic papers, or technical presentations. Triggers on requests for 配图、流程图、架构图、示意图、figure prompt、scientific figure、publication-ready illustration.
 user-invocable: true
 ---
 
-# [Scientific-Figure-Prompt] — 学术配图 AI 绘图提示词生成器
+# Scientific Figure Prompt
 
-> 从技术描述直接生成结构化 AI 绘图 prompt，适配 Midjourney / DALL-E / Gemini。
+## Overview
 
-## 触发条件
+从技术描述直接生成结构化、出版级质量的 AI 绘图提示词，适配 Midjourney / DALL-E / Gemini。
 
-用户需要生成科学论文、技术报告、学术汇报的配图 prompt 时触发。关键词：配图、流程图、架构图、示意图、figure prompt、scientific figure。
+核心机制：
 
-## 工作流
+- **交互式风格选择**：7 个预设方案 + 自定义
+- **全局风格文档** (`global_style.md`)：一次生成，全篇论文多图复用，保证视觉一致性
+- **三阶段内部推理**：Understand → Think → Design — 用户只看到最终 prompt
+
+## When to Use
+
+**Use when:**
+- 用户需要为科学论文、技术报告、学术汇报生成配图 prompt
+- 用户提到：配图、流程图、架构图、示意图、figure prompt、scientific figure
+- 用户需要多张配图共享统一视觉风格
+
+**When NOT to use:**
+- 纯艺术创作、非技术类插图、照片处理
+
+## Core Pattern
 
 ### Step 1: 收集用户输入
 
@@ -20,12 +34,12 @@ user-invocable: true
 
 | 字段 | 必填 | 说明 |
 |------|------|------|
-| **visualization_goal** | ✅ | 这张图要讲什么故事？一句话核心信息 |
-| **technical_content** | ✅ | 要可视化的技术内容：系统/算法/概念，关键组件、关系、数据流 |
-| **scene_description** | ✅ | 大致场景描述：几个模块、大致布局方向、重点突出什么 |
-| **language** | ✅ | 标注语言：中文 / 英文 / 中英双语 |
-| **global_style** | ❌ | 全局绘图风格 md（已有则粘贴；无则留空，系统会生成） |
-| **special_requirements** | ❌ | 特殊约束：必须突出 X、避免 Y、类似某论文风格等 |
+| **visualization_goal** | Y | 这张图要讲什么故事？一句话核心信息 |
+| **technical_content** | Y | 要可视化的技术内容：系统/算法/概念，关键组件、关系、数据流 |
+| **scene_description** | Y | 大致场景描述：几个模块、大致布局方向、重点突出什么 |
+| **language** | Y | 标注语言：中文 / 英文 / 中英双语 |
+| **global_style** | N | 全局绘图风格 md（已有则粘贴；无则留空，系统会生成） |
+| **special_requirements** | N | 特殊约束：必须突出 X、避免 Y、类似某论文风格等 |
 
 如果用户消息中已包含部分信息，只需补充缺失项。
 
@@ -38,7 +52,6 @@ user-invocable: true
 ```
 IF 用户提供了 global_style (完整的 md 格式全局风格文档):
     → 直接使用，跳过风格选择，进入 Step 4
-    → 该 global_style 的色板/字体/形状/规格将注入当前及后续所有 prompt
 
 ELIF 用户提供了模糊风格要求 (如 "蓝色系"、"偏简约"):
     → 基于模糊要求 + 默认预设 P1 生成 global_style.md
@@ -104,25 +117,26 @@ no watermarks, no blurry, no cluttered, no 3D, no gradients, no shadows, no deco
 
 用 `clarify` 提供预设方案，同时允许用户自定义。选择后自动生成 `global_style.md` 并输出给用户保存。
 
-#### 预设方案
+## Quick Reference
+
+### 7 种预设方案
 
 | 编号 | 预设名 | 适用场景 | 关键特征 |
 |------|--------|----------|----------|
-| **P1** | 🎓 AI/SE 学术白底简约 | 论文/汇报配图（**默认**） | 白底、浅色系、无渐变、圆角矩形、1.5px 描边、无 3D、无阴影、sans-serif |
-| **P2** | 🔬 Nature/Science 深色 | 顶刊 Figure | 浅灰底(#F5F5F5)、蓝绿主色系、细线连接、subfigure 编号 |
-| **P3** | 🏗️ 系统架构图 | 微服务/系统设计 | 分层布局、模块色块区分、虚线边界、数据流箭头 |
-| **P4** | 📊 数据流水线 | ETL/Pipeline/Workflow | 左→右流向、阶段色带、图标+标签、并行分支 |
-| **P5** | 🔄 循环/反馈图 | 训练循环/迭代优化 | 环形布局、反馈箭头、收敛指示、中心核心 |
-| **P6** | 🌐 网络拓扑 | 分布式系统/通信图 | 节点-边模型、辐射/网状、协议标注、层次分组 |
-| **P7** | 🎨 自定义 | 用户完全自定义 | 用户描述风格偏好 |
+| **P1** | AI/SE 学术白底简约 | 论文/汇报配图（默认） | 白底、浅色系、无渐变、圆角矩形、1.5px 描边、无 3D、无阴影、sans-serif |
+| **P2** | Nature/Science 深色 | 顶刊 Figure | 浅灰底(#F5F5F5)、蓝绿主色系、细线连接、subfigure 编号 |
+| **P3** | 系统架构图 | 微服务/系统设计 | 分层布局、模块色块区分、虚线边界、数据流箭头 |
+| **P4** | 数据流水线 | ETL/Pipeline/Workflow | 左→右流向、阶段色带、图标+标签、并行分支 |
+| **P5** | 循环/反馈图 | 训练循环/迭代优化 | 环形布局、反馈箭头、收敛指示、中心核心 |
+| **P6** | 网络拓扑 | 分布式系统/通信图 | 节点-边模型、辐射/网状、协议标注、层次分组 |
+| **P7** | 自定义 | 用户完全自定义 | 用户描述风格偏好 |
 
 **默认选 P1**（AI/SE 学术白底简约）。
 
-### Step 4: 预设→参数映射
-
-根据用户选择的预设，展开为完整参数集：
+### 预设参数映射
 
 #### P1: AI/SE 学术白底简约（默认）
+
 ```yaml
 background: "#FFFFFF"
 color_palette:
@@ -147,6 +161,7 @@ negative_prompt: no watermarks, no blurry, no cluttered, no 3D, no gradients, no
 ```
 
 #### P2: Nature/Science 深色
+
 ```yaml
 background: "#F5F5F5"
 color_palette:
@@ -169,6 +184,7 @@ negative_prompt: no watermarks, no blurry, no 3D, no gradients, no decorative, n
 ```
 
 #### P3: 系统架构图
+
 ```yaml
 background: "#FFFFFF"
 color_palette:
@@ -191,6 +207,7 @@ negative_prompt: no watermarks, no blurry, no 3D, no gradients, no decorative, n
 ```
 
 #### P4: 数据流水线
+
 ```yaml
 background: "#FFFFFF"
 color_palette:
@@ -213,6 +230,7 @@ negative_prompt: no watermarks, no blurry, no 3D, no gradients, no decorative, n
 ```
 
 #### P5: 循环/反馈图
+
 ```yaml
 background: "#FFFFFF"
 color_palette:
@@ -234,6 +252,7 @@ negative_prompt: no watermarks, no blurry, no 3D, no gradients, no decorative, n
 ```
 
 #### P6: 网络拓扑
+
 ```yaml
 background: "#FFFFFF"
 color_palette:
@@ -255,19 +274,24 @@ negative_prompt: no watermarks, no blurry, no 3D, no gradients, no decorative, n
 ```
 
 #### P7: 自定义
+
 由用户描述风格偏好，AI 衡量后生成参数集。需确保输出格式与上述预设一致。
 
-### Step 5: 三阶段推理生成 Prompt
+## Implementation
 
-内部执行，不输出中间过程：
+### Step 4: 三阶段推理生成 Prompt
+
+内部执行，不输出中间过程。
 
 #### Phase 1: UNDERSTAND
+
 - 提取 core story（输入→处理→输出？对比？层次？循环？）
 - 列出 key entities 和 relationships
 - 识别 innovation/highlight 点
 - 确定受众（reviewers / general / technical）和载体（paper / slides / poster）
 
 #### Phase 2: THINK
+
 - 从 7 种图类型中选择最匹配的，给出理由：
   System Architecture / Flowchart-Pipeline / Layered / Cycle-Loop / Comparison / Radial-HubSpoke / Swimlane
 - 设计视觉层级：FIRST（最大/最醒目）→ SECOND（支撑）→ de-emphasize（必要但不焦点）
@@ -275,23 +299,16 @@ negative_prompt: no watermarks, no blurry, no 3D, no gradients, no decorative, n
 - 创新点位置：黄金分割位 / 中心 / 终端
 
 #### Phase 3: DESIGN
+
 基于 Phase 1-2 结论 + 用户选定预设参数，生成结构化 prompt。
 
-### Step 6: 输出格式
+### Step 5: 输出格式
 
-**输出分两种情况：**
+**情况 A：用户提供了 global_style（后续调用）** — 只输出绘图 prompt，不输出 global_style.md。
 
-#### 情况 A：用户提供了 global_style（后续调用）
+**情况 B：用户未提供 global_style（首次调用）** — 先输出 `global_style.md`（供用户保存），再输出绘图 prompt。
 
-只输出绘图 prompt，不输出 global_style.md。
-
-#### 情况 B：用户未提供 global_style（首次调用）
-
-先输出 `global_style.md`（供用户保存，后续调用时粘贴回来），再输出绘图 prompt。
-
----
-
-**绘图 prompt 格式如下：**
+绘图 prompt 格式：
 
 ```
 === SCENE DESCRIPTION ===
@@ -340,32 +357,19 @@ negative_prompt: no watermarks, no blurry, no 3D, no gradients, no decorative, n
 [from preset]
 ```
 
-### Step 7: 自检
+### Step 6: 自检
 
 输出前内部验证：
-- [ ] 核心故事是否一眼可读？
-- [ ] 创新点是否视觉突出？
-- [ ] 用户所有需求是否覆盖？
-- [ ] 颜色是否为浅色系、无渐变（P1 默认约束）？
-- [ ] 标注语言是否匹配用户选择？
-- [ ] Prompt 是否足够具体可复现？
-
-## 关键约束
-
-1. **浅色系优先**：默认预设 P1 严格要求浅色系色板，禁止渐变、3D、阴影
-2. **白底**：学术配图默认白底，除非用户显式要求深色
-3. **结构化输出**：必须按 Step 6 格式输出，不要自由散文
-4. **语言一致**：所有 label 使用用户指定的语言
-5. **不要输出 Phase 1/2 的中间推理**：用户只要最终 prompt
-6. **交互最小化**：尽量一次 clarify 搞定，不要多轮追问
-7. **全局风格优先**：如果用户提供了 global_style.md，必须严格遵循其色板/字体/形状/规格，不再走风格选择流程
-8. **首次调用必输出 global_style.md**：未提供时必须生成并输出，确保用户有文档可保存复用
-
-## Few-Shot 示例
+- 核心故事是否一眼可读？
+- 创新点是否视觉突出？
+- 用户所有需求是否覆盖？
+- 颜色是否为浅色系、无渐变（P1 默认约束）？
+- 标注语言是否匹配用户选择？
+- Prompt 是否足够具体可复现？
 
 ### 示例 1：首次调用（无 global_style）
 
-#### 输入
+**输入：**
 ```
 visualization_goal: 展示 RAG 系统如何通过检索增强减少 LLM 幻觉
 technical_content: Query→Embedding→Vector DB检索→Context拼接→LLM生成→验证。关键创新：双路检索（稀疏+稠密）+ 自适应重排序
@@ -375,7 +379,7 @@ global_style: (未提供)
 preset: P1
 ```
 
-#### 输出（先输出 global_style.md，再输出 prompt）
+**输出（先输出 global_style.md，再输出 prompt）：**
 
 ```markdown
 # Global Figure Style — RAG System Paper
@@ -481,7 +485,7 @@ no watermarks, no blurry, no cluttered, no 3D, no gradients, no shadows, no deco
 
 ### 示例 2：后续调用（有 global_style）
 
-#### 输入
+**输入：**
 ```
 visualization_goal: 展示 Verifier 模块如何检测并过滤幻觉内容
 technical_content: LLM输出→事实校验(知识库比对)→置信度评分→阈值过滤→高置信输出/低置信回退。关键：多粒度校验（句子级+实体级）
@@ -490,7 +494,7 @@ language: 英文
 global_style: (粘贴之前生成的 Global Figure Style — RAG System Paper)
 ```
 
-#### 输出（只输出 prompt，不重复输出 global_style.md）
+**输出（只输出 prompt，不重复输出 global_style.md）：**
 
 ```
 === SCENE DESCRIPTION ===
@@ -506,11 +510,11 @@ Verification Core (Highlighted):
 • Confidence Scorer: rounded rectangle, #E8855B, center-right, "Confidence Scoring"
 
 High-confidence Path:
-• Threshold Gate (pass): diamond, #4A90D9, right, "Score ≥ θ"
+• Threshold Gate (pass): diamond, #4A90D9, right, "Score >= theta"
 • Final Output: rounded rectangle, #7EC8A0, far-right, "High-confidence Output"
 
 Low-confidence Path:
-• Threshold Gate (fail): diamond, #8C8C8C, below-right, "Score < θ"
+• Threshold Gate (fail): diamond, #8C8C8C, below-right, "Score < theta"
 • Fallback: rounded rectangle, #8C8C8C, bottom-right, "Fallback / Re-query"
 
 Connections:
@@ -519,8 +523,8 @@ Connections:
 • Fact Verifier → Entity-level Check: solid arrow, ""
 • Sentence-level Check → Confidence Scorer: solid arrow, ""
 • Entity-level Check → Confidence Scorer: solid arrow, ""
-• Confidence Scorer → Threshold Gate (pass): solid arrow, "≥ θ"
-• Confidence Scorer → Threshold Gate (fail): solid arrow, "< θ"
+• Confidence Scorer → Threshold Gate (pass): solid arrow, ">= theta"
+• Confidence Scorer → Threshold Gate (fail): solid arrow, "< theta"
 • Threshold Gate (pass) → Final Output: solid arrow, ""
 • Threshold Gate (fail) → Fallback: solid arrow, ""
 
@@ -555,13 +559,16 @@ Connections:
 no watermarks, no blurry, no cluttered, no 3D, no gradients, no shadows, no decorative elements, no stock photo style, no text errors, no overlapping labels, no dark background
 ```
 
-## Pitfalls
+## Common Mistakes
 
-- ❌ 不要用深色/渐变/3D 效果（P1 默认禁止）
-- ❌ 不要输出 Phase 1/2 推理过程，用户只要最终 prompt
-- ❌ 不要让用户填模板文件，直接交互式收集
-- ❌ 不要生成模糊的色值（如 "light blue"），必须给 hex
-- ❌ 不要遗漏 negative prompt
-- ❌ 用户提供了 global_style 时不要重新生成风格文档，直接用
-- ❌ 首次调用不要跳过 global_style.md 的输出，用户需要保存它
-- ❌ 不要在 global_style.md 里留占位符，所有值必须填充具体值
+| 错误 | 修正 |
+|------|------|
+| 使用深色/渐变/3D 效果 | P1 默认禁止；白底、浅色系、flat design |
+| 输出 Phase 1/2 推理过程 | 用户只要最终 prompt，不输出中间推理 |
+| 让用户手动填模板文件 | 直接交互式收集信息 |
+| 生成模糊色值（如 "light blue"） | 必须给 hex 值（如 #4A90D9） |
+| 遗漏 negative prompt | 每次输出必须包含 |
+| 用户提供了 global_style 时重新生成风格文档 | 直接使用，不重新生成 |
+| 首次调用跳过 global_style.md 输出 | 未提供时必须生成并输出 |
+| global_style.md 留占位符 | 所有值必须填充具体值 |
+| 多轮追问同一信息 | 尽量一次 clarify 搞定 |
